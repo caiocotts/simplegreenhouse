@@ -11,8 +11,9 @@ int main() {
   srand((unsigned)(time(NULL)));
 
   GhDisplayHeader("Caio Cotts");
+
   while (true) {
-    // printf("------%Lx\n", GhGetSerial());
+    now = time(NULL);
     fprintf(stdout, "\nUnit: %Lx %sReadings\tT: %dC\n", GhGetSerial(),
             ctime(&now), GhGetRandom(100) - 50);
     GhDelay(GHUPDATE);

@@ -1,8 +1,14 @@
 /*
 ************************
-******* lab01.c ********
+******* Simple *********
 ************************
 */
+
+#include <stdbool.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <unistd.h>
 
 #include "func.h"
 
@@ -10,17 +16,16 @@ int main() {
   time_t now;
   srand((unsigned)(time(NULL)));
 
-  displayHeader("Caio Cotts");
+  displayHeader("Anon");
   while (true) {
     now = time(NULL);
-    // printf("------%Lx\n", GhGetSerial());
     printf("\nUnit: %Lx %sReadings\tT: %dC\n", getSerial(), ctime(&now),
            getRandom(100) - 50);
     sleep(GHUPDATE);
   }
 
-  printf("Press ENTER to continue...");
-  getchar();
+  // printf("Press ENTER to continue...");
+  // getchar();
 
-  return EXIT_FAILURE;
+  return 0;
 }

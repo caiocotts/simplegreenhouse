@@ -1,30 +1,19 @@
-
-
 #include "func.h"
+#include <stdio.h>
+#include <stdlib.h>
 
-// void GhDelay(int milliseconds) {
-//   long wait;
-//   clock_t now, start;
-
-//   wait = milliseconds * (CLOCKS_PER_SEC / 1000);
-//   start = clock();
-//   now = start;
-//   while ((now - start) < wait) {
-//     now = clock();
-//   }
-// }
-
-uint64_t getSerial(void) {
+unsigned long long int getSerial(void) {
 
   FILE *fp;
-  static uint64_t serial = 0;
+  static unsigned long long int serial = 0;
   char buf[BUFSIZE];
   system("cat /proc/cpuinfo | grep Serial | grep -Po '[\\d]+'> serialnum");
   fp = fopen("serialnum", "r");
   if (fp != NULL) {
-    fscanf(fp, "%lu", &serial);
+    fscanf(fp, "%llu", &serial);
     fclose(fp);
-    printf("%lu", serial);
+  } else {
+    return 0;
   }
 
   return serial;

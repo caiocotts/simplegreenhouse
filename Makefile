@@ -9,7 +9,7 @@ func.o: func.c func.h
 	cc func.c -c
 
 clean:
-	rm *.o
+	rm -f *.o main serialnum
  
 
 

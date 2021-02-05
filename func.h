@@ -1,6 +1,5 @@
-#ifndef GHCONTROL_H
-#define GHCONTROL_H
-#define SEARCHSTR "Serial\t\t"
+#ifndef SIMPLEGH_H
+#define SIMPLEGH_H
 #define BUFSIZE 512
 #define GHUPDATE 2
 

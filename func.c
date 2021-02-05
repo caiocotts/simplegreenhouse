@@ -7,6 +7,9 @@ unsigned long long int getSerial(void) {
   FILE *fp;
   static unsigned long long int serial = 0;
   char buf[BUFSIZE];
+
+  // print text from cpuinfo, filter "Serial", filter any numbers,
+  // pass numbers into serialnum
   system("cat /proc/cpuinfo | grep Serial | grep -Po '[\\d]+'> serialnum");
   fp = fopen("serialnum", "r");
   if (fp != NULL) {

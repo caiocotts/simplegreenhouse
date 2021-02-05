@@ -10,6 +10,8 @@ func.o: func.c func.h
 
 clean:
 	rm -f *.o main serialnum
+# Use clean to remove all object, exectutable, files as well
+# as serialnum from your working directory
  
 
 

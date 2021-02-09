@@ -10,3 +10,13 @@ unsigned long long int getSerial(void);
 void displayHeader(const char *sname);
 
 #endif
+
+// void GhControllerInit(void);
+// void GhDisplayReadings(time_t rtime, double dreads[SENSORS]);
+// void GhDisplayTargets(void);
+//
+// double GhGetHumidity(void);
+// double GhGetPressure(void);
+// double GhGetTemperature(void);
+// double GhGetReadings(double readings[SENSORS]);
+//

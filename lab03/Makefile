@@ -1,15 +1,15 @@
 
-lab03:  lab03.o ghcontrol.o
-	gcc -g -o lab03 lab03.o ghcontrol.o
+lab04:  lab04.o ghcontrol.o
+	gcc -g -o lab04 lab04.o ghcontrol.o
 
-lab03.o: lab03.c ghcontrol.h
-	gcc -g -c lab03.c
+lab04.o: lab04.c ghcontrol.h
+	gcc -g -c lab04.c
 
 ghcontrol.o: ghcontrol.c ghcontrol.h
 	gcc -g -c ghcontrol.c
 
 clean:
-	rm -f *.o lab03 stamp.txt
+	rm -f *.o lab04 stamp.txt
 
 
 

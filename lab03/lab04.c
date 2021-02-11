@@ -11,6 +11,7 @@
 
 int main() {
   time_t now;
+  int tempc, humidc;
   double creadings[SENSORS];
   GhControllerInit();
 
@@ -18,11 +19,11 @@ int main() {
     now = time(NULL);
     GhGetReadings(creadings);
     // task 4
-    GhSetControls();
 
     GhDisplayReadings(now, creadings);
-    // GhDisplayTargets();
-    GhDisplayControls();
+    GhDisplayTargets();
+    GhSetControls(&tempc, &humidc, creadings);
+    GhDisplayControls(&tempc, &humidc);
 
     GhDelay(GHUPDATE);
   }

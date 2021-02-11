@@ -53,7 +53,7 @@ void GhDisplayHeader(const char *sname) {
 
 void GhControllerInit(void) {
   srand((unsigned)time(NULL));
-  GhSetTargets();
+  GhDisplayTargets();
   GhDisplayHeader("Caio Cotts");
 }
 
@@ -64,19 +64,53 @@ void GhDisplayReadings(time_t rtime, double dreads[SENSORS]) {
           GhGetSerial(), ctime(&rtime), dreads[TEMPERATURE], dreads[HUMIDITY],
           dreads[PRESSURE]);
 }
-double GhGetHumidity(void) { return 55.0; }
-double GhGetPressure(void) { return 1013.0; }
-double GhGetTemperature(void) { return 20.0; }
+double GhGetHumidity(void) {
+#if SIMULATE
+  return GhGetRandom(USHUMID - LSHUMID) + LSHUMID;
+#else
+  return 55.0;
+#endif
+}
+double GhGetPressure(void) {
+#if SIMULATE
+  return GhGetRandom(USPRESS - LSPRESS) + LSPRESS;
+#else
+  return 1013.0;
+#endif
+}
+double GhGetTemperature(void) {
 
-// double readings[SENSORS]
+#if SIMULATE
+  return GhGetRandom(USTEMP - LSTEMP) + LSTEMP;
+#else
+  return 20.0;
+#endif
+}
 
-double GhGetReadings(double readings[SENSORS]) {
+void GhGetReadings(double readings[SENSORS]) {
 
   readings[TEMPERATURE] = GhGetTemperature();
   readings[HUMIDITY] = GhGetHumidity();
   readings[PRESSURE] = GhGetPressure();
 }
 
-void GhSetControls(void) {}
+void GhSetControls(int *heater, int *humidifier, double readings[SENSORS]) {
+  if (readings[TEMPERATURE] < STEMP) {
+    *heater = 1;
+  } else {
+    *heater = 0;
+  }
+  if (readings[HUMIDITY] < SHUMID) {
+    *humidifier = 1;
+  } else {
+    *humidifier = 0;
+  }
+}
 void GhSetTargets(void) {}
-void GhDisplayControls(void) {}
+void GhDisplayTargets(void) {
+  fprintf(stdout, "Targets\tT: %5.1lfC\tH: %5.1lf%%\n", STEMP, SHUMID);
+}
+void GhDisplayControls(int *heater, int *humidifier) {
+  fprintf(stdout, " Controls\tHeater: %i\tHumidifier: %i\n", *heater,
+          *humidifier);
+}

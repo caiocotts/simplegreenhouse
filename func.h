@@ -11,7 +11,7 @@ void displayHeader(const char *sname);
 
 #endif
 
-// void GhControllerInit(void);
+void ControllerInit(void);
 // void GhDisplayReadings(time_t rtime, double dreads[SENSORS]);
 // void GhDisplayTargets(void);
 //

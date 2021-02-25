@@ -15,13 +15,12 @@
 
 int main() {
   time_t now;
-  srand((unsigned)(time(NULL)));
+  // srand((unsigned)(time(NULL)));
 
-  displayHeader("Anon");
   while (true) {
     now = time(NULL);
-    printf("\nUnit: %Lx %sReadings\tT: %dC\n", getSerial(), ctime(&now),
-           getRandom(100) - 50);
+    printf("\nUnit: %Lx %sReadings\tT: %dC\n", GetSerial(), ctime(&now),
+           GetRandom(100) - 50);
     sleep(GHUPDATE);
   }
 

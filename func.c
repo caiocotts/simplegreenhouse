@@ -1,11 +1,11 @@
+#include "func.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include "func.h"
+#include <unistd.h>
 
-unsigned long long int GetSerial(void)
-{
+unsigned long long int GetSerial(void) {
 
   FILE *fp;
   static unsigned long long int serial = 0;
@@ -15,13 +15,10 @@ unsigned long long int GetSerial(void)
   // pass numbers into serialnum
   system("grep Serial /proc/cpuinfo | grep -Po '[\\d]+'> serialnum");
   fp = fopen("serialnum", "r");
-  if (fp != NULL)
-  {
+  if (fp != NULL) {
     fscanf(fp, "%Lx", &serial);
     fclose(fp);
-  }
-  else
-  {
+  } else {
     return 0;
   }
 
@@ -30,19 +27,20 @@ unsigned long long int GetSerial(void)
 
 int GetRandom(int range) { return rand() % range; }
 
-void DisplayHeader(const char *sname)
-{
+void DisplayHeader(const char *sname) {
   fprintf(stdout, "%s' Greenhouse Controller\n\n\n", sname);
 }
 
-void ControllerInit(void)
-{
+void ControllerInit(void) {
+  system("clear");
+  DisplaySplashScreen();
+  sleep(3);
+  system("clear");
   srand((unsigned)time(NULL));
   DisplayHeader("Caio Cotts");
 }
 
-void DisplayReadings(struct readings rdata)
-{
+void DisplayReadings(struct readings rdata) {
 
   fprintf(stdout,
           "\nUnit:%Lx %s Readings\tT: %5.1lfC\tH: %5.1lf%%\tP: %6.1lfmb\n ",
@@ -50,8 +48,7 @@ void DisplayReadings(struct readings rdata)
           rdata.pressure);
 }
 
-double GetHumidity(void)
-{
+double GetHumidity(void) {
 #if SIMHUMIDITY
   return GetRandom(USHUMID - LSHUMID) + LSHUMID;
 #else
@@ -59,8 +56,7 @@ double GetHumidity(void)
 #endif
 }
 
-double GetPressure(void)
-{
+double GetPressure(void) {
 #if SIMPRESSURE
   return GetRandom(USPRESS - LSPRESS) + LSPRESS;
 #else
@@ -68,8 +64,7 @@ double GetPressure(void)
 #endif
 }
 
-double GetTemperature(void)
-{
+double GetTemperature(void) {
 
 #if SIMTEMPERATURE
   return GetRandom(USTEMP - LSTEMP) + LSTEMP;
@@ -78,8 +73,7 @@ double GetTemperature(void)
 #endif
 }
 
-struct readings GetReadings(void)
-{
+struct readings GetReadings(void) {
   struct readings now = {0};
 
   now.rtime = time(NULL);
@@ -89,60 +83,48 @@ struct readings GetReadings(void)
   return now;
 }
 
-struct controls SetControls(struct setpoints target, struct readings rdata)
-{
-  struct controls cset = {0};
+struct controls SetControls(struct setpoints target, struct readings rdata) {
+  struct controls state = {0};
 
-  if (rdata.temperature < target.temperature)
-  {
-    cset.heater = ON;
+  if (rdata.temperature < target.temperature) {
+    state.heater = ON;
+  } else {
+    state.heater = OFF;
   }
-  else
-  {
-    cset.heater = OFF;
+  if (rdata.humidity < target.humidity) {
+    state.humidifier = ON;
+  } else {
+    state.humidifier = OFF;
   }
-  if (rdata.humidity < target.humidity)
-  {
-    cset.humidifier = ON;
-  }
-  else
-  {
-    cset.humidifier = OFF;
-  }
-  return cset;
+  return state;
 }
 
-struct setpoints SetTargets(void)
-{
-  struct setpoints cpoints = RetrieveSetPoints("setpoints.dat");
-  if (cpoints.temperature == 0)
-  {
+struct setpoints SetTargets(void) {
+  struct setpoints cpoints = RetrieveSetPoints("setpoints");
+  if (cpoints.temperature == 0) {
     cpoints.temperature = STEMP;
     cpoints.humidity = SHUMID;
-    SaveSetPoints("setpoints.dat", cpoints);
+    SaveSetPoints("setpoints", cpoints);
   }
 
   return cpoints;
 }
 
-void DisplayTargets(struct setpoints spts)
-{
-  fprintf(stdout, "Targets\tT: %5.1lfC\tH: %5.1lf%%\n", spts.temperature, spts.humidity);
+void DisplayTargets(struct setpoints spts) {
+  fprintf(stdout, "Targets\tT: %5.1lfC\tH: %5.1lf%%\n", spts.temperature,
+          spts.humidity);
 }
 
-void DisplayControls(struct controls ctrl)
-{
+void DisplayControls(struct controls ctrl) {
   fprintf(stdout, " Controls\tHeater: %i\tHumidifier: %i\n", ctrl.heater,
           ctrl.humidifier);
 }
 
-int LogData(char *fname, struct readings ghdata)
-{
+int LogData(char *fname, struct readings ghdata) {
   FILE *fp;
   char ltime[CTIMESTRSZ];
   fp = fopen(fname, "a");
-  if (fp == NULL)
-  {
+  if (fp == NULL) {
     return 0;
   }
   strcpy(ltime, ctime(&ghdata.rtime));
@@ -151,19 +133,16 @@ int LogData(char *fname, struct readings ghdata)
   ltime[10] = ',';
   ltime[19] = ',';
 
-  fprintf(fp, "\n%.24s,%5.1lf,%5.1lf,%6.1lf",
-          ltime, ghdata.temperature, ghdata.humidity,
-          ghdata.pressure);
+  fprintf(fp, "\n%.24s,%5.1lf,%5.1lf,%6.1lf", ltime, ghdata.temperature,
+          ghdata.humidity, ghdata.pressure);
   fclose(fp);
   return 1;
 }
 
-int SaveSetPoints(char *fname, struct setpoints spts)
-{
+int SaveSetPoints(char *fname, struct setpoints spts) {
   FILE *fp;
   fp = fopen(fname, "w");
-  if (fp == NULL)
-  {
+  if (fp == NULL) {
     return 0;
   }
   fwrite(&spts, sizeof(struct setpoints), 1, fp);
@@ -171,16 +150,23 @@ int SaveSetPoints(char *fname, struct setpoints spts)
   return 1;
 }
 
-struct setpoints RetrieveSetPoints(char *fname)
-{
+struct setpoints RetrieveSetPoints(char *fname) {
   struct setpoints spts = {0};
   FILE *fp;
   fp = fopen(fname, "r");
-  if (fp == NULL)
-  {
+  if (fp == NULL) {
     return spts;
   }
   fread(&spts, sizeof(struct setpoints), 1, fp);
   fclose(fp);
   return spts;
+}
+
+void DisplaySplashScreen() {
+  puts("      _                 _");
+  puts("  ___(_)_ __ ___  _ __ | | ___");
+  puts(" / __| | '_ ` _ \\| '_ \\| |/ _ \\");
+  puts(" \\__ \\ | | | | | | |_) | |  __/");
+  puts(" |___/_|_| |_| |_| .__/|_|\\___|");
+  puts("                 |_| greenhouse");
 }

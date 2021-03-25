@@ -21,22 +21,19 @@
 #define SIMPRESSURE 1
 #define CTIMESTRSZ 25
 
-struct readings
-{
-    time_t rtime;
-    double temperature;
-    double humidity;
-    double pressure;
+struct readings {
+  time_t rtime;
+  double temperature;
+  double humidity;
+  double pressure;
 };
-struct setpoints
-{
-    double temperature;
-    double humidity;
+struct setpoints {
+  double temperature;
+  double humidity;
 };
-struct controls
-{
-    int heater;
-    int humidifier;
+struct controls {
+  int heater;
+  int humidifier;
 };
 
 int GetRandom(int range);
@@ -56,10 +53,6 @@ struct readings GetReadings(void);
 int LogData(char *fname, struct readings ghdata);
 int SaveSetPoints(char *fname, struct setpoints spts);
 struct setpoints RetrieveSetPoints(char *fname);
+void DisplaySplashScreen(void);
 
 #endif
-
-// void DisplayReadings(time_t rtime, double dreads[SENSORS]);
-//
-// double GetReadings(double readings[SENSORS]);
-//

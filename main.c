@@ -3,7 +3,7 @@
 // / __| | '_ ` _ \| '_ \| |/ _ \
 // \__ \ | | | | | | |_) | |  __/
 // |___/_|_| |_| |_| .__/|_|\___|
-//                 |_|
+//                 |_| greenhouse
 
 #include "func.h"
 #include <stdio.h>
@@ -11,8 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
-int main()
-{
+int main() {
   struct controls ctrl = {0};
   struct setpoints sets = {0};
   struct readings creadings = {0};
@@ -20,10 +19,10 @@ int main()
   ControllerInit();
   int logged;
 
-  while (1)
-  {
+  while (1) {
+
     creadings = GetReadings();
-    logged = LogData("data.txt", creadings);
+    logged = LogData("log", creadings);
 
     DisplayReadings(creadings);
     DisplayTargets(sets);

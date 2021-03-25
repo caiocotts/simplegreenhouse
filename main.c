@@ -5,28 +5,33 @@
 // |___/_|_| |_| |_| .__/|_|\___|
 //                 |_|
 
-#include <stdbool.h>
+#include "func.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
 
-#include "func.h"
+int main()
+{
+  struct controls ctrl = {0};
+  struct setpoints sets = {0};
+  struct readings creadings = {0};
+  sets = SetTargets();
+  ControllerInit();
+  int logged;
 
-int main() {
-  time_t now;
-  // srand((unsigned)(time(NULL)));
+  while (1)
+  {
+    creadings = GetReadings();
+    logged = LogData("data.txt", creadings);
 
-  while (true) {
-    now = time(NULL);
-    printf("\nUnit: %Lx %sReadings\tT: %dC\n", GetSerial(), ctime(&now),
-           GetRandom(100) - 50);
-    sleep(GHUPDATE);
+    DisplayReadings(creadings);
+    DisplayTargets(sets);
+    ctrl = SetControls(sets, creadings);
+    DisplayControls(ctrl);
+
+    sleep(DELAY_INTERVAL);
   }
 
-  // printf("Press ENTER to continue...");
-  // getchar();
-
-  return 0;
+  return EXIT_FAILURE;
 }
-// getSerial get_serial GetSerial

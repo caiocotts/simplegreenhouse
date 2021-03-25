@@ -1,36 +1,63 @@
-#ifndef SIMPLEGH_H
-#define SIMPLEGH_H
-#define BUFSIZE 512
-#define GHUPDATE 2
-#define SENSORS 3
-#define TEMPERATURE 0
-#define HUMIDITY 1
-#define PRESSURE 2
-#define SIMULATE 1
-#define USTEMP 50
-#define LSTEMP -10
-#define USHUMID 100
-#define LSHUMID 0
-#define USPRESS 1016
-#define LSPRESS 975
-// #define STEMP 25.0
-// #define SHUMID 55.0
-// #define ON 1
-// #define OFF 0
-
+#ifndef SIMPLEGREENHOUSE_H
+#define SIMPLEGREENHOUSE_H
+#include <stdint.h>
 #include <time.h>
 
+#define USHUMID 100
+#define LSHUMID 0
+#define SEARCHSTR "serial\t\t: "
+#define BUFSIZE 512
+#define DELAY_INTERVAL 2
+#define USTEMP 50
+#define LSTEMP -10
+#define USPRESS 1016
+#define LSPRESS 975
+#define STEMP 25.0
+#define SHUMID 55.0
+#define ON 1
+#define OFF 0
+#define SIMTEMPERATURE 1
+#define SIMHUMIDITY 1
+#define SIMPRESSURE 1
+#define CTIMESTRSZ 25
+
+struct readings
+{
+    time_t rtime;
+    double temperature;
+    double humidity;
+    double pressure;
+};
+struct setpoints
+{
+    double temperature;
+    double humidity;
+};
+struct controls
+{
+    int heater;
+    int humidifier;
+};
+
 int GetRandom(int range);
-unsigned long long int GetSerial(void);
+uint64_t GetSerial(void);
 void DisplayHeader(const char *sname);
-
-#endif
-
+void Delay(int milliseconds);
 void ControllerInit(void);
-void DisplayTargets(void);
+void DisplayControls(struct controls ctrl);
+void DisplayReadings(struct readings rdata);
+void DisplayTargets(struct setpoints spts);
+struct controls SetControls(struct setpoints target, struct readings rdata);
+struct setpoints SetTargets(void);
 double GetHumidity(void);
 double GetPressure(void);
 double GetTemperature(void);
+struct readings GetReadings(void);
+int LogData(char *fname, struct readings ghdata);
+int SaveSetPoints(char *fname, struct setpoints spts);
+struct setpoints RetrieveSetPoints(char *fname);
+
+#endif
 
 // void DisplayReadings(time_t rtime, double dreads[SENSORS]);
 //

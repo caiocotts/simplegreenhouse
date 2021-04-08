@@ -17,9 +17,9 @@
 #define SHUMID 55.0
 #define ON 1
 #define OFF 0
-#define SIMTEMPERATURE 0
-#define SIMHUMIDITY 0
-#define SIMPRESSURE 0
+#define SIMTEMPERATURE 1
+#define SIMHUMIDITY 1
+#define SIMPRESSURE 1
 #define CTIMESTRSZ 25
 #define NUMBARS 8
 #define NUMPTS 8.0
@@ -27,6 +27,7 @@
 #define HBAR 5
 #define PBAR 3
 #define SENSEHAT 1
+#define PIXEL_STRING "  "
 
 typedef struct readings {
   time_t rtime;
@@ -73,5 +74,7 @@ void PurpleTextColour();
 void CyanTextColour();
 void WhiteTextColour();
 void ResetTextColour();
+void WritePixel(int x, int y, fbpixel_s pixel_color);
+void WriteBlankMatrix();
 
 #endif

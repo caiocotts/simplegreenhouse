@@ -1,6 +1,6 @@
 
 main:  main.o func.o pisensehat.o
-	cc main.o func.o pisensehat.o -lwiringPi -o main
+	cc main.o func.o pisensehat.o -lwiringPi -lm -lncurses -o main 
 
 main.o: main.c func.h
 	cc main.c -c

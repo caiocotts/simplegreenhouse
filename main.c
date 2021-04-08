@@ -8,6 +8,7 @@
 // getopt
 
 #include "func.h"
+#include <ncurses.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -21,16 +22,20 @@ int main() {
   ControllerInit();
   int logged;
 
+  initscr();
+  WriteBlankMatrix();
   while (1) {
-
+    curs_set(0);
+    refresh();
     creadings = GetReadings();
     logged = LogData("log", creadings);
     DisplayOnMatrix(creadings, sets);
-    DisplayReadings(creadings);
-    DisplayTargets(sets);
+    // DisplayReadings(creadings);
+    // DisplayTargets(sets);
     ctrl = SetControls(sets, creadings);
-    DisplayControls(ctrl);
-
+    // DisplayControls(ctrl);
+    // endwin();
+    refresh();
     sleep(DELAY_INTERVAL);
   }
 

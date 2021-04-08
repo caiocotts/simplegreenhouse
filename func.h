@@ -1,5 +1,6 @@
 #ifndef SIMPLEGREENHOUSE_H
 #define SIMPLEGREENHOUSE_H
+#include "pisensehat.h"
 #include <stdint.h>
 #include <time.h>
 
@@ -16,43 +17,61 @@
 #define SHUMID 55.0
 #define ON 1
 #define OFF 0
-#define SIMTEMPERATURE 1
-#define SIMHUMIDITY 1
-#define SIMPRESSURE 1
+#define SIMTEMPERATURE 0
+#define SIMHUMIDITY 0
+#define SIMPRESSURE 0
 #define CTIMESTRSZ 25
+#define NUMBARS 8
+#define NUMPTS 8.0
+#define TBAR 7
+#define HBAR 5
+#define PBAR 3
+#define SENSEHAT 1
 
-struct readings {
+typedef struct readings {
   time_t rtime;
   double temperature;
   double humidity;
   double pressure;
-};
-struct setpoints {
+} readings;
+
+typedef struct setpoints {
   double temperature;
   double humidity;
-};
-struct controls {
+} setpoints;
+
+typedef struct controls {
   int heater;
   int humidifier;
-};
+} controls;
 
 int GetRandom(int range);
 uint64_t GetSerial(void);
 void DisplayHeader(const char *sname);
 void Delay(int milliseconds);
 void ControllerInit(void);
-void DisplayControls(struct controls ctrl);
-void DisplayReadings(struct readings rdata);
-void DisplayTargets(struct setpoints spts);
-struct controls SetControls(struct setpoints target, struct readings rdata);
-struct setpoints SetTargets(void);
+void DisplayControls(controls ctrl);
+void DisplayReadings(readings rdata);
+void DisplayTargets(setpoints spts);
+controls SetControls(setpoints target, readings rdata);
+setpoints SetTargets(void);
 double GetHumidity(void);
 double GetPressure(void);
 double GetTemperature(void);
-struct readings GetReadings(void);
-int LogData(char *fname, struct readings ghdata);
-int SaveSetPoints(char *fname, struct setpoints spts);
-struct setpoints RetrieveSetPoints(char *fname);
+readings GetReadings(void);
+int LogData(char *fname, readings ghdata);
+int SaveSetPoints(char *fname, setpoints spts);
+setpoints RetrieveSetPoints(char *fname);
 void DisplaySplashScreen(void);
+void DisplayOnMatrix(readings values, setpoints targets);
+void RedTextColour();
+void BlackTextColour();
+void GreenTextColour();
+void YellowTextColour();
+void BlueTextColour();
+void PurpleTextColour();
+void CyanTextColour();
+void WhiteTextColour();
+void ResetTextColour();
 
 #endif

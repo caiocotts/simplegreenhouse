@@ -1,11 +1,13 @@
 #include "func.h"
+#include "pisensehat.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <unistd.h>
 
-unsigned long long int GetSerial(void) {
+unsigned long long int GetSerial(void)
+{
 
   FILE *fp;
   static unsigned long long int serial = 0;
@@ -15,10 +17,13 @@ unsigned long long int GetSerial(void) {
   // pass numbers into serialnum
   system("grep Serial /proc/cpuinfo | grep -Po '[\\d]+'> serialnum");
   fp = fopen("serialnum", "r");
-  if (fp != NULL) {
+  if (fp != NULL)
+  {
     fscanf(fp, "%Lx", &serial);
     fclose(fp);
-  } else {
+  }
+  else
+  {
     return 0;
   }
 
@@ -27,20 +32,26 @@ unsigned long long int GetSerial(void) {
 
 int GetRandom(int range) { return rand() % range; }
 
-void DisplayHeader(const char *sname) {
+void DisplayHeader(const char *sname)
+{
   fprintf(stdout, "%s' Greenhouse Controller\n\n\n", sname);
 }
 
-void ControllerInit(void) {
+void ControllerInit(void)
+{
   system("clear");
   DisplaySplashScreen();
   sleep(3);
   system("clear");
   srand((unsigned)time(NULL));
   DisplayHeader("Caio Cotts");
+#if SENSEHAT
+  ShInit();
+#endif
 }
 
-void DisplayReadings(struct readings rdata) {
+void DisplayReadings(readings rdata)
+{
 
   fprintf(stdout,
           "\nUnit:%Lx %s Readings\tT: %5.1lfC\tH: %5.1lf%%\tP: %6.1lfmb\n ",
@@ -48,33 +59,43 @@ void DisplayReadings(struct readings rdata) {
           rdata.pressure);
 }
 
-double GetHumidity(void) {
+double GetHumidity(void)
+{
 #if SIMHUMIDITY
   return GetRandom(USHUMID - LSHUMID) + LSHUMID;
 #else
-  return 55.0;
+  ht221sData_s ch = {0};
+  ch = ShGetHT221SData();
+  return ch.humidity;
 #endif
 }
 
-double GetPressure(void) {
+double GetPressure(void)
+{
 #if SIMPRESSURE
   return GetRandom(USPRESS - LSPRESS) + LSPRESS;
 #else
-  return 1013.0;
+  lps25hData_s cp = {0};
+  cp = ShGetLPS25HData();
+  return cp.pressure;
 #endif
 }
 
-double GetTemperature(void) {
+double GetTemperature(void)
+{
 
 #if SIMTEMPERATURE
   return GetRandom(USTEMP - LSTEMP) + LSTEMP;
 #else
-  return 20.0;
+  ht221sData_s ct = {0};
+  ct = ShGetHT221SData();
+  return ct.temperature;
 #endif
 }
 
-struct readings GetReadings(void) {
-  struct readings now = {0};
+readings GetReadings(void)
+{
+  readings now = {0};
 
   now.rtime = time(NULL);
   now.temperature = GetTemperature();
@@ -83,25 +104,34 @@ struct readings GetReadings(void) {
   return now;
 }
 
-struct controls SetControls(struct setpoints target, struct readings rdata) {
-  struct controls state = {0};
+controls SetControls(setpoints target, readings rdata)
+{
+  controls state = {0};
 
-  if (rdata.temperature < target.temperature) {
+  if (rdata.temperature < target.temperature)
+  {
     state.heater = ON;
-  } else {
+  }
+  else
+  {
     state.heater = OFF;
   }
-  if (rdata.humidity < target.humidity) {
+  if (rdata.humidity < target.humidity)
+  {
     state.humidifier = ON;
-  } else {
+  }
+  else
+  {
     state.humidifier = OFF;
   }
   return state;
 }
 
-struct setpoints SetTargets(void) {
-  struct setpoints cpoints = RetrieveSetPoints("setpoints");
-  if (cpoints.temperature == 0) {
+setpoints SetTargets(void)
+{ // Create a dot directory in ~ if non existent
+  setpoints cpoints = RetrieveSetPoints("setpoints");
+  if (cpoints.temperature == 0)
+  {
     cpoints.temperature = STEMP;
     cpoints.humidity = SHUMID;
     SaveSetPoints("setpoints", cpoints);
@@ -110,21 +140,25 @@ struct setpoints SetTargets(void) {
   return cpoints;
 }
 
-void DisplayTargets(struct setpoints spts) {
+void DisplayTargets(setpoints spts)
+{
   fprintf(stdout, "Targets\tT: %5.1lfC\tH: %5.1lf%%\n", spts.temperature,
           spts.humidity);
 }
 
-void DisplayControls(struct controls ctrl) {
+void DisplayControls(controls ctrl)
+{
   fprintf(stdout, " Controls\tHeater: %i\tHumidifier: %i\n", ctrl.heater,
           ctrl.humidifier);
 }
 
-int LogData(char *fname, struct readings ghdata) {
+int LogData(char *fname, readings ghdata)
+{
   FILE *fp;
   char ltime[CTIMESTRSZ];
   fp = fopen(fname, "a");
-  if (fp == NULL) {
+  if (fp == NULL)
+  {
     return 0;
   }
   strcpy(ltime, ctime(&ghdata.rtime));
@@ -139,34 +173,84 @@ int LogData(char *fname, struct readings ghdata) {
   return 1;
 }
 
-int SaveSetPoints(char *fname, struct setpoints spts) {
+int SaveSetPoints(char *fname, setpoints spts)
+{
   FILE *fp;
   fp = fopen(fname, "w");
-  if (fp == NULL) {
+  if (fp == NULL)
+  {
     return 0;
   }
-  fwrite(&spts, sizeof(struct setpoints), 1, fp);
+  fwrite(&spts, sizeof(setpoints), 1, fp);
   fclose(fp);
   return 1;
 }
 
-struct setpoints RetrieveSetPoints(char *fname) {
-  struct setpoints spts = {0};
+setpoints RetrieveSetPoints(char *fname)
+{
+  setpoints spts = {0};
   FILE *fp;
   fp = fopen(fname, "r");
-  if (fp == NULL) {
+  if (fp == NULL)
+  {
     return spts;
   }
-  fread(&spts, sizeof(struct setpoints), 1, fp);
+  fread(&spts, sizeof(setpoints), 1, fp);
   fclose(fp);
   return spts;
 }
 
-void DisplaySplashScreen() {
+void DisplaySplashScreen()
+{
+  GreenTextColour();
   puts("      _                 _");
   puts("  ___(_)_ __ ___  _ __ | | ___");
   puts(" / __| | '_ ` _ \\| '_ \\| |/ _ \\");
   puts(" \\__ \\ | | | | | | |_) | |  __/");
   puts(" |___/_|_| |_| |_| .__/|_|\\___|");
   puts("                 |_| greenhouse");
+  ResetTextColour();
 }
+
+void DisplayOnMatrix(readings values, setpoints targets)
+{
+  int scaledReadings, sv, svh, avl;
+  fbpixel_s pixel_colour;
+  ShClearMatrix();
+  scaledReadings = (8.0 * (((values.temperature - LSTEMP) / (USTEMP - LSTEMP)) + 0.05)) -
+                   1.0;
+  pixel_colour.red = 0x00;
+  pixel_colour.green = 0xFF;
+  pixel_colour.blue = 0x00;
+  ShSetVerticalBar(TBAR, pixel_colour, scaledReadings);
+
+  scaledReadings = (8.0 * (((values.humidity - LSHUMID) / (USHUMID - LSHUMID)) + 0.05)) -
+                   1.0;
+  ShSetVerticalBar(HBAR, pixel_colour, scaledReadings);
+
+  scaledReadings = (8.0 * (((values.pressure - LSPRESS) / (USPRESS - LSPRESS)) + 0.05)) -
+                   1.0;
+  ShSetVerticalBar(PBAR, pixel_colour, scaledReadings);
+
+  pixel_colour.red = 0xFF;
+  pixel_colour.green = 0x00;
+  pixel_colour.blue = 0x00;
+
+  sv = (8.0 * (((targets.temperature - LSTEMP) / (USTEMP - LSTEMP)) + 0.05)) -
+       1.0;
+  ShSetPixel(TBAR, sv, pixel_colour);
+
+  sv = (8.0 * (((targets.humidity - LSHUMID) / (USHUMID - LSHUMID)) + 0.05)) -
+       1.0;
+  ShSetPixel(HBAR, sv, pixel_colour);
+}
+
+void RedTextColour() { printf("\033[0;30m"); }
+void BlackTextColour() { printf("\033[0;31m"); }
+void GreenTextColour() { printf("\033[0;32m"); }
+void YellowTextColour() { printf("\033[0;33m"); }
+void BlueTextColour() { printf("\033[0;34m"); }
+void PurpleTextColour() { printf("\033[0;35m"); }
+void CyanTextColour() { printf("\033[0;36m"); }
+void WhiteTextColour() { printf("\033[0;37m"); }
+void ResetTextColour() { printf("\033[0m"); }

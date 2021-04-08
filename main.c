@@ -5,6 +5,8 @@
 // |___/_|_| |_| |_| .__/|_|\___|
 //                 |_| greenhouse
 
+// getopt
+
 #include "func.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -12,9 +14,9 @@
 #include <unistd.h>
 
 int main() {
-  struct controls ctrl = {0};
-  struct setpoints sets = {0};
-  struct readings creadings = {0};
+  controls ctrl = {0};
+  setpoints sets = {0};
+  readings creadings = {0};
   sets = SetTargets();
   ControllerInit();
   int logged;
@@ -23,7 +25,7 @@ int main() {
 
     creadings = GetReadings();
     logged = LogData("log", creadings);
-
+    DisplayOnMatrix(creadings, sets);
     DisplayReadings(creadings);
     DisplayTargets(sets);
     ctrl = SetControls(sets, creadings);

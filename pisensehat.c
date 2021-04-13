@@ -5,6 +5,7 @@
 
 #include "pisensehat.h"
 #include "func.h"
+// #include <math.h>
 
 static int fbfd;      // Frame buffer file handle;
 static uint16_t *map; // Frame buffer memory map pointer;
@@ -171,21 +172,15 @@ int ShSetVerticalBar(int bar, fbpixel_s px, uint8_t value) {
   }
   if (bar >= 0 && bar < 8 && value >= 0 && value < 8) {
     for (i = 0; i <= value; i++) {
-#if TERMINAL_MATRIX
       WritePixel(bar, i, px);
-#else
       ShSetPixel(bar, i, px);
-#endif
     }
     px.red = 0x00;
     px.green = 0x00;
     px.blue = 0x00;
     for (i = value + 1; i < 8; i++) {
-#if TERMINAL_MATRIX
       WritePixel(bar, i, px);
-#else
       ShSetPixel(bar, i, px);
-#endif
     }
     return EXIT_SUCCESS;
   }

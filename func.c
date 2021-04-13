@@ -35,9 +35,8 @@ void DisplayHeader(const char *sname) {
 }
 
 void ControllerInit(void) {
-  // system("clear");
-  // DisplaySplashScreen();
-  // sleep(3);
+  DisplaySplashScreen();
+
   system("clear");
   srand((unsigned)time(NULL));
   DisplayHeader("Caio Cotts");
@@ -46,12 +45,12 @@ void ControllerInit(void) {
 #endif
 }
 
-void DisplayReadings(readings rdata) {
+void DisplayReadings(readings rdata, int x, int y) {
 
-  fprintf(stdout,
-          "\nUnit:%Lx %s Readings\tT: %5.1lfC\tH: %5.1lf%%\tP: %6.1lfmb\n ",
-          GetSerial(), ctime(&rdata.rtime), rdata.temperature, rdata.humidity,
-          rdata.pressure);
+  mvprintw(y, x, "Unit:%Lx %s ", GetSerial(), ctime(&rdata.rtime),
+           rdata.pressure);
+  mvprintw(y + 1, x, "Readings\tT: %5.1lfC\tH: %5.1lf%%\tP: %6.1lfmb\n",
+           rdata.temperature, rdata.humidity, rdata.pressure);
 }
 
 double GetHumidity(void) {
@@ -122,14 +121,14 @@ setpoints SetTargets(void) { // Create a dot directory in ~ if non existent
   return cpoints;
 }
 
-void DisplayTargets(setpoints spts) {
-  fprintf(stdout, "Targets\tT: %5.1lfC\tH: %5.1lf%%\n", spts.temperature,
-          spts.humidity);
+void DisplayTargets(setpoints spts, int x, int y) {
+  mvprintw(y + 2, x, "Targets\tT: %5.1lfC\tH: %5.1lf%%\n", spts.temperature,
+           spts.humidity);
 }
 
-void DisplayControls(controls ctrl) {
-  fprintf(stdout, " Controls\tHeater: %i\tHumidifier: %i\n", ctrl.heater,
-          ctrl.humidifier);
+void DisplayControls(controls ctrl, int x, int y) {
+  mvprintw(y + 3, x, "Controls\tHeater: %i\tHumidifier: %i\n", ctrl.heater,
+           ctrl.humidifier);
 }
 
 int LogData(char *fname, readings ghdata) {
@@ -175,14 +174,18 @@ setpoints RetrieveSetPoints(char *fname) {
 }
 
 void DisplaySplashScreen() {
-  GreenTextColour();
-  puts("      _                 _");
-  puts("  ___(_)_ __ ___  _ __ | | ___");
-  puts(" / __| | '_ ` _ \\| '_ \\| |/ _ \\");
-  puts(" \\__ \\ | | | | | | |_) | |  __/");
-  puts(" |___/_|_| |_| |_| .__/|_|\\___|");
-  puts("                 |_| greenhouse");
-  ResetTextColour();
+  printw("      _                 _\n");
+  printw("  ___(_)_ __ ___  _ __ | | ___\n");
+  printw(" / __| | '_ ` _ \\| '_ \\| |/ _ \\\n");
+  printw(" \\__ \\ | | | | | | |_) | |  __/\n");
+  printw(" |___/_|_| |_| |_| .__/|_|\\___|\n");
+  printw("                 |_|");
+  attron(COLOR_PAIR(4));
+  printw(" greenhouse\n");
+  attroff(COLOR_PAIR(4));
+  refresh();
+  clear();
+  sleep(3);
 }
 
 void DisplayOnMatrix(readings values, setpoints targets) {
@@ -213,39 +216,18 @@ void DisplayOnMatrix(readings values, setpoints targets) {
 
   sv = (8.0 * (((targets.temperature - LSTEMP) / (USTEMP - LSTEMP)) + 0.05)) -
        1.0;
-#if TERMINAL_MATRIX
-  ceil(sv);
   WritePixel(TBAR, sv, pixel_colour);
-#else
   ShSetPixel(TBAR, sv, pixel_colour);
-#endif
   sv = (8.0 * (((targets.humidity - LSHUMID) / (USHUMID - LSHUMID)) + 0.05)) -
        1.0;
-#if TERMINAL_MATRIX
   ceil(sv);
   WritePixel(HBAR, sv, pixel_colour);
-#else
   ShSetPixel(HBAR, sv, pixel_colour);
-#endif
 }
 
-void RedTextColour() { printf("\033[0;30m"); }
-void BlackTextColour() { printf("\033[0;31m"); }
-void GreenTextColour() { printf("\033[0;32m"); }
-void YellowTextColour() { printf("\033[0;33m"); }
-void BlueTextColour() { printf("\033[0;34m"); }
-void PurpleTextColour() { printf("\033[0;35m"); }
-void CyanTextColour() { printf("\033[0;36m"); }
-void WhiteTextColour() { printf("\033[0;37m"); }
-void ResetTextColour() { printf("\033[0m"); }
-
 void WritePixel(int x, int y, fbpixel_s pixel_color) {
-  // start_color();
   int simulated_x_coordinate = (7 - x) * 4;
   int simulated_y_coordinate = (7 - y) * 2;
-  init_pair(1, COLOR_BLACK, COLOR_RED);
-  init_pair(2, COLOR_BLACK, COLOR_GREEN);
-  init_pair(3, COLOR_BLACK, COLOR_WHITE);
 
   if (pixel_color.red != 0) {
     attron(COLOR_PAIR(1));
@@ -256,21 +238,19 @@ void WritePixel(int x, int y, fbpixel_s pixel_color) {
     mvprintw(simulated_y_coordinate, simulated_x_coordinate, PIXEL_STRING);
     attroff(COLOR_PAIR(2));
   } else {
-    attron(COLOR_PAIR(3));
+    attron(COLOR_PAIR(4));
     mvprintw(simulated_y_coordinate, simulated_x_coordinate, PIXEL_STRING);
-    attroff(COLOR_PAIR(3));
+    attroff(COLOR_PAIR(4));
   }
 }
 
 void WriteBlankMatrix() {
-  start_color();
-  init_pair(4, COLOR_BLACK, COLOR_WHITE);
 
   for (int y = 0; y <= 14; y = y + 2) {
     for (int x = 0; x <= 31; x = x + 4) {
-      attron(COLOR_PAIR(4));
+      attron(COLOR_PAIR(3));
       mvprintw(y, x, "  ");
-      attroff(COLOR_PAIR(4));
+      attroff(COLOR_PAIR(3));
     }
   }
 

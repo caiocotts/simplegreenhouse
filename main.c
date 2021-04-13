@@ -15,29 +15,32 @@
 #include <unistd.h>
 
 int main() {
+  initscr();
+  start_color();
+  init_pair(1, COLOR_BLACK, COLOR_RED);
+  init_pair(2, COLOR_BLACK, COLOR_GREEN);
+  init_pair(3, COLOR_BLACK, COLOR_WHITE);
+  init_pair(4, COLOR_GREEN, COLOR_BLACK);
+  curs_set(0);
   controls ctrl = {0};
   setpoints sets = {0};
   readings creadings = {0};
   sets = SetTargets();
   ControllerInit();
   int logged;
-
-  initscr();
-  WriteBlankMatrix();
+  int xoffset = 35;
+  int yoffset = 2;
+  // WriteBlankMatrix();
   while (1) {
-    curs_set(0);
     refresh();
     creadings = GetReadings();
     logged = LogData("log", creadings);
     DisplayOnMatrix(creadings, sets);
-    // DisplayReadings(creadings);
-    // DisplayTargets(sets);
+    DisplayReadings(creadings, xoffset, yoffset);
+    DisplayTargets(sets, xoffset, yoffset);
     ctrl = SetControls(sets, creadings);
-    // DisplayControls(ctrl);
-    // endwin();
+    DisplayControls(ctrl, xoffset, yoffset);
     refresh();
     sleep(DELAY_INTERVAL);
   }
-
-  return EXIT_FAILURE;
 }

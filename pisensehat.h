@@ -24,7 +24,7 @@
 
 // Set to 1 if you'd like to print the matrix to the terminal screen instead of
 // the physical led matrix.
-#define TERMINAL_MATRIX 1
+// #define TERMINAL_MATRIX 1
 
 // If running without physical Sensehat set EMULATOR to 1
 // Also comment out any calls you have in your main to GhLogData

@@ -17,9 +17,9 @@
 #define SHUMID 55.0
 #define ON 1
 #define OFF 0
-#define SIMTEMPERATURE 1
-#define SIMHUMIDITY 1
-#define SIMPRESSURE 1
+#define SIMTEMPERATURE 0
+#define SIMHUMIDITY 0
+#define SIMPRESSURE 0
 #define CTIMESTRSZ 25
 #define NUMBARS 8
 #define NUMPTS 8.0
@@ -51,9 +51,9 @@ uint64_t GetSerial(void);
 void DisplayHeader(const char *sname);
 void Delay(int milliseconds);
 void ControllerInit(void);
-void DisplayControls(controls ctrl);
-void DisplayReadings(readings rdata);
-void DisplayTargets(setpoints spts);
+void DisplayControls(controls ctrl, int x, int y);
+void DisplayReadings(readings rdata, int x, int y);
+void DisplayTargets(setpoints spts, int x, int y);
 controls SetControls(setpoints target, readings rdata);
 setpoints SetTargets(void);
 double GetHumidity(void);
@@ -65,15 +65,6 @@ int SaveSetPoints(char *fname, setpoints spts);
 setpoints RetrieveSetPoints(char *fname);
 void DisplaySplashScreen(void);
 void DisplayOnMatrix(readings values, setpoints targets);
-void RedTextColour();
-void BlackTextColour();
-void GreenTextColour();
-void YellowTextColour();
-void BlueTextColour();
-void PurpleTextColour();
-void CyanTextColour();
-void WhiteTextColour();
-void ResetTextColour();
 void WritePixel(int x, int y, fbpixel_s pixel_color);
 void WriteBlankMatrix();
 
